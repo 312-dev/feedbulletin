@@ -8,6 +8,21 @@
   // author name when CORS / load errors force a hash-derived pastel.
   const avatarTintCache = new Map<string, string>();
 
+  // Avatar URLs whose <img> failed to load (404, CORS block, network error,
+  // whatever) get added here. Subsequent renders treat the URL as missing,
+  // which routes that post through the silhouette + geopattern fallback
+  // instead of leaving the browser's broken-image glyph on screen.
+  // Reddit's AutoModerator is the canonical case: its `icon_img` field
+  // sometimes resolves to a URL that 404s while every other Snoo loads fine.
+  let failedAvatars = $state<Set<string>>(new Set());
+
+  function markAvatarFailed(url: string) {
+    if (failedAvatars.has(url)) return;
+    // Reassign so Svelte 5's $state proxy sees the change (Set mutations
+    // alone don't trigger reactivity).
+    failedAvatars = new Set([...failedAvatars, url]);
+  }
+
   /** djb2 hash → unsigned 32-bit int. Shared by pastel + pattern. */
   function hashName(name: string): number {
     let h = 5381;
@@ -343,16 +358,17 @@
     {/if}
     <article class="vb-post" data-field="post" id={`post-${p.post_number ?? i + 1}`}>
       <aside class="vb-author-panel">
-        {#if p.avatar_url}
+        {#if p.avatar_url && !failedAvatars.has(p.avatar_url)}
           <img
             class="vb-avatar"
             data-field="avatar"
             src={p.avatar_url}
-            alt={p.author}
+            alt=""
             loading="lazy"
             crossorigin="anonymous"
             style={`--avatar-tint: ${pastelFromName(p.author || "unknown")}; --avatar-pattern: ${patternFromName(p.author || "unknown")}`}
             onload={(e) => applyAvatarTint(e.currentTarget as HTMLImageElement, p.author)}
+            onerror={() => markAvatarFailed(p.avatar_url!)}
           />
         {:else}
           <!-- Silhouette placeholder. Bg rect is transparent so the avatar
