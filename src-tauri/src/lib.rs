@@ -154,15 +154,17 @@ fn init_tracing(app_data_dir: &Path) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Minimal stderr-only logger until we know the app-data dir inside
-    // setup(); init_tracing() upgrades to file + stderr once it does.
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_FILTER)),
-        )
-        .try_init();
-
+    // NOTE: we deliberately do NOT init tracing here. tracing's global
+    // subscriber is set-once, so installing a stderr-only fmt subscriber now
+    // would block init_tracing() inside setup() from attaching the file
+    // layer — manifesting as an empty log file in the app-data logs dir.
+    // The two consequences:
+    //   1. Anything that logs BEFORE setup() runs (only this function plus
+    //      bootstrap_anthropic_key_from_1password) gets dropped. Both are
+    //      side-effect-only and use eprintln when they need to surface
+    //      something pre-init.
+    //   2. The Tauri runtime's own pre-setup log messages also drop, which
+    //      is fine — they're noisy and not actionable.
     bootstrap_anthropic_key_from_1password();
 
     tauri::Builder::default()
