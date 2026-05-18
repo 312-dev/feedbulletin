@@ -87,10 +87,17 @@ describe("ForumRow", () => {
   });
 
   it("renders last-post block with title, author, absolute date", () => {
-    const { getByText, container } = render(ForumRow, { props: { forum: forum() } });
+    // Use a timestamp from ~30 days ago so the formatter renders an absolute
+    // date ("12 Mar 2026, 14:30") rather than the relative "Today, HH:MM"
+    // that fires for same-day posts.
+    const thirtyDaysAgo = Math.floor(Date.now() / 1000) - 30 * 86400;
+    const { getByText, container } = render(ForumRow, {
+      props: { forum: forum({ latest_thread_at: thirtyDaysAgo }) },
+    });
     expect(getByText(/Re: 1923 Foursquare/)).toBeInTheDocument();
     expect(getByText("oldhouselove")).toBeInTheDocument();
-    expect(container.innerHTML).toMatch(/\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2}/);
+    // vB4 classic format is MM-DD-YYYY, HH:MM AM/PM for older posts.
+    expect(container.innerHTML).toMatch(/\d{2}-\d{2}-\d{4}, \d{2}:\d{2} [AP]M/);
   });
 
   it("renders no-posts-yet placeholder when latest_thread_title is null", () => {

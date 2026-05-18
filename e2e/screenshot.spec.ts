@@ -232,14 +232,50 @@ for (const skin of GALLERY_SKINS) {
 test("native-thread: reddit-style with avatars + author column metadata", async ({ page }) => {
   const ts = Math.floor(Date.now() / 1000);
   // Stub data: 5 posts in a Reddit-style discussion, all with full enrichment.
+  // Inline SVG avatars per author as data: URIs so the screenshot is
+  // self-contained — no network dep, no broken-image icons in CI, while
+  // still demonstrating real avatar rendering (vs the geopattern fallback).
+  const AVATAR_CENTURY = "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+       <defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'>
+         <stop offset='0' stop-color='#7CB342'/><stop offset='1' stop-color='#33691E'/>
+       </linearGradient></defs>
+       <rect width='64' height='64' fill='url(#g)'/>
+       <path d='M14 50 L32 18 L50 50 Z' fill='#FFF8E1' opacity='0.9'/>
+       <rect x='29' y='38' width='6' height='12' fill='#5D4037'/>
+     </svg>`
+  );
+  const AVATAR_BOILER = "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+       <rect width='64' height='64' fill='#1565C0'/>
+       <circle cx='32' cy='24' r='10' fill='#FFCCBC'/>
+       <path d='M14 56 C14 42 50 42 50 56 Z' fill='#FFCCBC'/>
+       <rect x='10' y='14' width='44' height='6' fill='#FFA000'/>
+       <text x='32' y='52' text-anchor='middle' font-family='monospace' font-size='8' font-weight='bold' fill='#FFFFFF'>HVAC</text>
+     </svg>`
+  );
+  const AVATAR_RESTORER = "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+       <rect width='64' height='64' fill='#6D4C41'/>
+       <rect x='12' y='28' width='40' height='28' fill='#A1887F'/>
+       <polygon points='8,28 32,8 56,28' fill='#3E2723'/>
+       <rect x='28' y='38' width='8' height='18' fill='#3E2723'/>
+       <rect x='16' y='34' width='6' height='8' fill='#FFECB3'/>
+       <rect x='42' y='34' width='6' height='8' fill='#FFECB3'/>
+     </svg>`
+  );
+
   const richPostsStub = stub + `
     const oldInvoke = window.__TAURI_INTERNALS__.invoke;
+    const AV_CENTURY = ${JSON.stringify(AVATAR_CENTURY)};
+    const AV_BOILER = ${JSON.stringify(AVATAR_BOILER)};
+    const AV_RESTORER = ${JSON.stringify(AVATAR_RESTORER)};
     const POSTS = [
       {
         post_number: 1,
         author: "centuryhomesfan",
         author_url: "https://www.reddit.com/u/centuryhomesfan",
-        avatar_url: "https://i.redd.it/snoo-avatars/avatar-default-1.png",
+        avatar_url: AV_CENTURY,
         author_rank: "Top 1% contributor",
         author_post_count: "2,148 posts",
         author_join_date: "Joined Jan 2019",
@@ -252,7 +288,7 @@ test("native-thread: reddit-style with avatars + author column metadata", async 
         post_number: 2,
         author: "boilerdad",
         author_url: "https://www.reddit.com/u/boilerdad",
-        avatar_url: "https://i.redd.it/snoo-avatars/avatar-default-2.png",
+        avatar_url: AV_BOILER,
         author_rank: "HVAC contractor",
         author_post_count: "9,712 posts",
         author_join_date: "Joined May 2014",
@@ -267,7 +303,7 @@ test("native-thread: reddit-style with avatars + author column metadata", async 
         post_number: 3,
         author: "centuryhomesfan",
         author_url: "https://www.reddit.com/u/centuryhomesfan",
-        avatar_url: "https://i.redd.it/snoo-avatars/avatar-default-1.png",
+        avatar_url: AV_CENTURY,
         author_rank: "Top 1% contributor",
         author_post_count: "2,148 posts",
         author_join_date: "Joined Jan 2019",
@@ -280,7 +316,7 @@ test("native-thread: reddit-style with avatars + author column metadata", async 
         post_number: 4,
         author: "oldhouserestorer",
         author_url: "https://www.reddit.com/u/oldhouserestorer",
-        avatar_url: "https://i.redd.it/snoo-avatars/avatar-default-3.png",
+        avatar_url: AV_RESTORER,
         author_rank: "Trusted restorer",
         author_post_count: "4,503 posts",
         author_join_date: "Joined Aug 2016",
@@ -294,7 +330,7 @@ test("native-thread: reddit-style with avatars + author column metadata", async 
         post_number: 5,
         author: "boilerdad",
         author_url: "https://www.reddit.com/u/boilerdad",
-        avatar_url: "https://i.redd.it/snoo-avatars/avatar-default-2.png",
+        avatar_url: AV_BOILER,
         author_rank: "HVAC contractor",
         author_post_count: "9,712 posts",
         author_join_date: "Joined May 2014",
