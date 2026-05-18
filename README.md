@@ -228,6 +228,24 @@ take effect (the AI Wizard does this for you).
 
 ---
 
+## Logs / troubleshooting
+
+feedBulletin writes a debug-level log to a daily-rotating file in your
+app-data directory, with **24-hour retention** (files older than 24h are
+deleted on the next startup). Useful for diagnosing scrape misses, profile-
+learner output, or "why is this avatar broken":
+
+- macOS: `~/Library/Application Support/com.grayada.forumreader/logs/feedbulletin.log.<YYYY-MM-DD>`
+- Windows: `%APPDATA%\com.grayada.forumreader\logs\feedbulletin.log.<YYYY-MM-DD>`
+- Linux: `~/.config/com.grayada.forumreader/logs/feedbulletin.log.<YYYY-MM-DD>`
+
+Override the default filter (debug for our code, warn for noisy deps) with
+the standard `RUST_LOG` env var when launching from a terminal:
+
+```sh
+RUST_LOG=trace,sqlx=warn /Applications/feedBulletin.app/Contents/MacOS/forum-reader
+```
+
 ## Documentation
 
 - [DEVELOPMENT.md](DEVELOPMENT.md) — local dev setup, platform quirks

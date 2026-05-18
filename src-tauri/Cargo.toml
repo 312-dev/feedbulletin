@@ -32,7 +32,11 @@ chrono = { version = "0.4", features = ["serde"] }
 anyhow = "1"
 thiserror = "1"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "registry"] }
+tracing-appender = "0.2"
+# Bridges any 3rd-party crate that still uses `log::` macros (reqwest, hyper,
+# scraper, etc.) into our tracing subscriber so its events land in the file too.
+tracing-log = "0.2"
 url = "2"
 cookie = "0.18"
 time = "0.3"

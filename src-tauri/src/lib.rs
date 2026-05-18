@@ -2,10 +2,20 @@
 // that exceeds the default 128-deep macro recursion limit as the schema grows.
 #![recursion_limit = "512"]
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::sync::OnceLock;
+use std::time::{Duration, SystemTime};
 use tauri::Manager;
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
+use tracing_appender::non_blocking::WorkerGuard;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::{fmt, EnvFilter};
+
+// The non-blocking file appender drops messages once its guard is dropped.
+// We park the guard here so it lives for the whole process lifetime.
+static LOG_GUARD: OnceLock<WorkerGuard> = OnceLock::new();
 
 // `anthropic`, `db`, and `scrape` are surfaced as `pub` so the in-app WebView
 // smoke test in `examples/learn_old_reddit_smoketest.rs` can drive the full
@@ -51,12 +61,105 @@ pub mod test_exports {
     }
 }
 
+/// Default filter when `RUST_LOG` is unset. Our own crate is at DEBUG so the
+/// scrape pipeline (per-host selector pick, avatar extraction misses,
+/// enrichment failures) is fully visible in the log file; noisy 3rd-party
+/// crates are demoted so the file stays readable.
+const DEFAULT_LOG_FILTER: &str =
+    "debug,forum_reader=debug,forum_reader_lib=debug,\
+     sqlx=warn,hyper=warn,reqwest=warn,h2=warn,rustls=warn,\
+     tao=warn,wry=warn,tower_http=warn,tungstenite=warn";
+
+/// Walk the logs dir and delete any file whose mtime is older than `max_age`.
+/// Best-effort; silently skips entries it can't stat or remove.
+fn purge_old_logs(dir: &Path, max_age: Duration) {
+    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let cutoff = SystemTime::now()
+        .checked_sub(max_age)
+        .unwrap_or(SystemTime::UNIX_EPOCH);
+    let mut purged = 0usize;
+    for entry in entries.flatten() {
+        let Ok(meta) = entry.metadata() else { continue };
+        if !meta.is_file() {
+            continue;
+        }
+        let Ok(modified) = meta.modified() else { continue };
+        if modified < cutoff {
+            if std::fs::remove_file(entry.path()).is_ok() {
+                purged += 1;
+            }
+        }
+    }
+    if purged > 0 {
+        // Note: tracing isn't fully initialized yet here, so this won't reach
+        // the file. eprintln so it surfaces via stderr (visible when launching
+        // from a terminal).
+        eprintln!("[feedbulletin] purged {purged} log file(s) older than 24h");
+    }
+}
+
+/// Initialize tracing with stderr + daily-rotating-file layers.
+/// File goes to `<app-data>/logs/feedbulletin.log.<YYYY-MM-DD>`. Files older
+/// than 24h are deleted on startup. The non-blocking worker guard is parked in
+/// LOG_GUARD so the writer thread stays alive for the process lifetime.
+fn init_tracing(app_data_dir: &Path) {
+    if LOG_GUARD.get().is_some() {
+        // Already initialized (e.g. unit test or mobile-entry double-call).
+        return;
+    }
+    let log_dir = app_data_dir.join("logs");
+    if let Err(e) = std::fs::create_dir_all(&log_dir) {
+        eprintln!("[feedbulletin] could not create log dir {}: {e}", log_dir.display());
+        // Fall back to stderr-only so we don't lose all logging.
+        let _ = tracing_subscriber::fmt()
+            .with_env_filter(
+                EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_FILTER)),
+            )
+            .try_init();
+        return;
+    }
+
+    purge_old_logs(&log_dir, Duration::from_secs(24 * 60 * 60));
+
+    let file_appender = tracing_appender::rolling::daily(&log_dir, "feedbulletin.log");
+    let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+    let _ = LOG_GUARD.set(guard);
+
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_FILTER));
+
+    let stderr_layer = fmt::layer().with_writer(std::io::stderr).with_ansi(true);
+    let file_layer = fmt::layer()
+        .with_writer(non_blocking)
+        .with_ansi(false) // no color codes in the file
+        .with_target(true)
+        .with_thread_ids(false);
+
+    // Bridge `log::` crate output (used by reqwest/hyper/scraper/etc.) into
+    // tracing so it lands in the file too. try_init is a no-op if already set.
+    let _ = tracing_log::LogTracer::init();
+
+    let _ = tracing_subscriber::registry()
+        .with(filter)
+        .with(stderr_layer)
+        .with(file_layer)
+        .try_init();
+
+    info!(
+        path = %log_dir.display(),
+        "tracing initialized — file output (debug-level), 24h retention"
+    );
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Minimal stderr-only logger until we know the app-data dir inside
+    // setup(); init_tracing() upgrades to file + stderr once it does.
     let _ = tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info,sqlx=warn")),
+            EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_FILTER)),
         )
         .try_init();
 
@@ -120,6 +223,14 @@ pub fn run() {
                 .app_data_dir()
                 .unwrap_or_else(|_| project_root.clone());
             std::fs::create_dir_all(&app_data).ok();
+
+            // Upgrade tracing now that we know the app-data dir: stderr + a
+            // daily-rotating file at <app-data>/logs/feedbulletin.log.<date>,
+            // debug level, 24h retention. The initial stderr-only init in
+            // run() was a bridge for anything that logged before we got here.
+            init_tracing(&app_data);
+            debug!(app_data = %app_data.display(), "app data dir resolved");
+
             let app_data_config = app_data.join("feeds.yaml");
 
             let config_path = if project_config.exists() {

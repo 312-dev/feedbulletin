@@ -49,6 +49,10 @@ const SEEDS: &[(&str, &str)] = &[
         "www.bimmerpost.com__vbulletin_thread.md",
         include_str!("seed_profiles/www.bimmerpost.com__vbulletin_thread.md"),
     ),
+    (
+        "www.autopia.org__xenforo_text_thread.md",
+        include_str!("seed_profiles/www.autopia.org__xenforo_text_thread.md"),
+    ),
 ];
 
 #[derive(Debug)]
