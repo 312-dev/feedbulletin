@@ -23,6 +23,91 @@
     failedAvatars = new Set([...failedAvatars, url]);
   }
 
+  // ─── Nested-quote depth limiter ────────────────────────────────────────
+  // Forum threads frequently quote 4+ levels deep (post replies quote ⇒ quote
+  // ⇒ quote ⇒ original). Stacking that many <blockquote>s with backgrounds
+  // and left-borders eats vertical space and turns posts into a wall of
+  // chrome. We collapse any chain deeper than MAX_QUOTE_DEPTH down to its
+  // innermost MAX_QUOTE_DEPTH levels — keeping the most relevant context
+  // (what's being directly replied to) and dropping the older ancestors.
+  // An inline "[…older replies elided]" marker tells the reader context
+  // was trimmed.
+  const MAX_QUOTE_DEPTH = 2;
+
+  function trimDeepQuotes(html: string, maxDepth = MAX_QUOTE_DEPTH): string {
+    if (typeof document === "undefined") return html;
+    if (!html || !html.includes("<blockquote")) return html;
+    const tmpl = document.createElement("template");
+    tmpl.innerHTML = html;
+
+    // Max blockquote-depth reachable from below `el` (counts blockquote
+    // children's own depth, recursively). 0 if no nested blockquote.
+    function depthBelow(el: Element): number {
+      let max = 0;
+      for (const child of Array.from(el.children)) {
+        const sub = depthBelow(child);
+        max = Math.max(max, child.tagName === "BLOCKQUOTE" ? 1 + sub : sub);
+      }
+      return max;
+    }
+
+    // For each chain root (a blockquote with no blockquote ancestor in this
+    // fragment), if its total chain depth exceeds maxDepth, replace it with
+    // the inner subtree at depth (chainDepth - maxDepth) — i.e. step down
+    // chainDepth - maxDepth levels and graft what we find.
+    //
+    // Step-down rule when a blockquote has multiple direct blockquote
+    // children: take the deepest. That's the most-recent ancestor in a
+    // typical reply chain (XF/VB serialize each new quote inside the prior
+    // one, so deepest = most recent).
+    function deepestBlockquoteChild(bq: Element): Element | null {
+      let best: Element | null = null;
+      let bestDepth = -1;
+      for (const child of Array.from(bq.children)) {
+        if (child.tagName !== "BLOCKQUOTE") continue;
+        const d = 1 + depthBelow(child);
+        if (d > bestDepth) {
+          bestDepth = d;
+          best = child;
+        }
+      }
+      return best;
+    }
+
+    function trimRoot(bq: Element) {
+      const chainDepth = 1 + depthBelow(bq);
+      if (chainDepth <= maxDepth) return;
+      let toReplace = bq;
+      let levelsToSkip = chainDepth - maxDepth;
+      let inner: Element | null = bq;
+      while (levelsToSkip > 0 && inner) {
+        inner = deepestBlockquoteChild(inner);
+        levelsToSkip--;
+      }
+      if (!inner) return; // shouldn't happen if depth math is right
+      const marker = document.createElement("div");
+      marker.className = "vb-quote-elided";
+      marker.textContent = "[…older replies elided]";
+      toReplace.parentNode?.insertBefore(marker, toReplace);
+      toReplace.parentNode?.replaceChild(inner, toReplace);
+    }
+
+    // Collect chain roots first (snapshot — trim mutates the tree).
+    const roots: Element[] = [];
+    for (const bq of Array.from(tmpl.content.querySelectorAll("blockquote"))) {
+      let p: Element | null = bq.parentElement;
+      let hasBqAncestor = false;
+      while (p) {
+        if (p.tagName === "BLOCKQUOTE") { hasBqAncestor = true; break; }
+        p = p.parentElement;
+      }
+      if (!hasBqAncestor) roots.push(bq);
+    }
+    for (const root of roots) trimRoot(root);
+
+    return tmpl.innerHTML;
+  }
+
   /** djb2 hash → unsigned 32-bit int. Shared by pastel + pattern. */
   function hashName(name: string): number {
     let h = 5381;
@@ -472,7 +557,7 @@
           </div>
         {/if}
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        <div class="vb-post-content" data-field="body">{@html p.body_html}</div>
+        <div class="vb-post-content" data-field="body">{@html trimDeepQuotes(p.body_html)}</div>
         {#if p.signature_html}
           <div class="vb-post-sig" data-field="signature">
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -842,6 +927,18 @@
     max-width: 100%;
     height: auto;
     vertical-align: middle;
+  }
+
+  /* Inline marker placed by trimDeepQuotes() in place of the chain root when
+     the original chain was deeper than MAX_QUOTE_DEPTH. Reads as a quiet
+     italic note so it doesn't compete with the quotes it's introducing. */
+  .vb-post-content :global(.vb-quote-elided) {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--vb-very-muted);
+    margin: 6px 0 -4px 0;
+    padding-left: 6px;
+    border-left: 2px dotted var(--vb-blockquote-border);
   }
 
   /* Classic vB quote box — applies to BOTH source-embedded quotes (XenForo /
