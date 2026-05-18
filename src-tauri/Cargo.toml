@@ -1,0 +1,47 @@
+[package]
+name = "forum-reader"
+version = "0.1.0"
+description = "Local vBulletin-style aggregator for Reddit and forum RSS feeds"
+authors = ["Grayson Adams"]
+edition = "2021"
+
+[lib]
+name = "forum_reader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["unstable"] }
+tauri-plugin-opener = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+futures = "0.3"
+
+reqwest = { version = "0.12", default-features = false, features = ["default-tls", "json", "gzip", "brotli"] }
+
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros", "migrate", "chrono"] }
+
+quick-xml = { version = "0.36", features = ["serialize"] }
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2"
+cookie = "0.18"
+time = "0.3"
+scraper = "0.20"
+ammonia = "4"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "test-util"] }
+# Direct tao+wry for the in-app WebView smoke test (examples/learn_old_reddit_smoketest.rs).
+# Pinned to the same versions Tauri 2.11 uses transitively to avoid duplicate builds.
+tao = "0.35"
+wry = "0.55"

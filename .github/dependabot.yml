@@ -1,0 +1,45 @@
+version: 2
+updates:
+  # JS deps
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      svelte-stack:
+        patterns: ["svelte*", "@sveltejs/*", "vite*"]
+      tauri:
+        patterns: ["@tauri-apps/*"]
+      codemirror:
+        patterns: ["@codemirror/*", "codemirror"]
+      testing:
+        patterns: ["vitest*", "@vitest/*", "@playwright/*", "@testing-library/*", "jsdom"]
+
+  # Rust deps
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      tauri:
+        patterns: ["tauri*", "@tauri*"]
+      tokio:
+        patterns: ["tokio*"]
+      sqlx:
+        patterns: ["sqlx*"]
+      tracing:
+        patterns: ["tracing*"]
+
+  # CI itself
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "ci"

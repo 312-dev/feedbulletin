@@ -1,0 +1,324 @@
+categories:
+  - name: BMW & Wrenching
+    forums:
+      - kind: generic_rss
+        title: Bimmerforums
+        url: https://www.bimmerforums.com/forum/external.php?type=RSS2
+      - kind: generic_rss
+        title: BimmerPost
+        url: https://www.bimmerpost.com/forums/external.php?type=RSS2
+      - kind: generic_rss
+        title: BimmerPost — M3 G80/G82
+        url: https://g80.bimmerpost.com/forums/external.php?type=RSS2
+      - kind: generic_rss
+        title: Autopia (Detailing)
+        url: https://www.autopia.org/forums/-/index.rss
+
+  - name: Chicago
+    forums:
+      - kind: generic_rss
+        title: LTH Forum
+        url: https://www.lthforum.com/bb/feed.php
+      - kind: reddit
+        sub: chicago
+        title: The Chicago Lounge
+      - kind: reddit
+        sub: chicagofood
+        title: Chicago Eats
+      - kind: reddit
+        sub: ChicagoSuburbs
+        title: Suburbs of Chicago
+      - kind: reddit
+        sub: NearWestSuburbs
+        title: Near West Suburbs
+      - kind: reddit
+        sub: chicagoyimbys
+        title: Chicago YIMBYs
+      - kind: reddit
+        sub: oakpark
+        title: Oak Park
+      - kind: reddit
+        sub: AskChicago
+        title: Ask Chicago
+
+  - name: Other Cities
+    forums:
+      - kind: reddit
+        sub: Atlanta
+        title: Atlanta
+
+  - name: Smart Home & Network
+    forums:
+      - kind: generic_rss
+        title: Home Assistant Community
+        url: https://community.home-assistant.io/latest.rss
+      - kind: generic_rss
+        title: Ubiquiti Community — UniFi
+        url: https://community.ui.com/rss/topics/unifi
+      - kind: generic_rss
+        title: Ubiquiti Community — Network
+        url: https://community.ui.com/rss/topics/unifi-network
+      - kind: reddit
+        sub: HomeKit
+        title: HomeKit Lounge
+      - kind: reddit
+        sub: sonos
+        title: Sonos Owners
+
+  - name: Tech & Phones
+    forums:
+      - kind: generic_rss
+        title: XDA Developers
+        url: https://xdaforums.com/forums/-/index.rss
+      - kind: generic_rss
+        title: Fairphone Community
+        url: https://forum.fairphone.com/latest.rss
+      - kind: reddit
+        sub: Android
+        title: Android General
+      - kind: reddit
+        sub: AndroidAuto
+        title: Android Auto
+      - kind: reddit
+        sub: GooglePixel
+        title: Pixel Phones
+      - kind: reddit
+        sub: GrapheneOS
+        title: GrapheneOS Discussion
+      - kind: reddit
+        sub: PickAnAndroidForMe
+        title: Phone Buying Advice
+      - kind: reddit
+        sub: unihertz
+        title: Unihertz Owners
+      - kind: reddit
+        sub: Windows11
+        title: Windows 11
+      - kind: reddit
+        sub: windsurf
+        title: Windsurf (IDE)
+      - kind: reddit
+        sub: vintagecomputing
+        title: Vintage Computing
+      - kind: reddit
+        sub: kubernetes
+        title: Kubernetes
+
+  - name: Coffee & Espresso
+    forums:
+      - kind: generic_rss
+        title: Home-Barista
+        url: https://www.home-barista.com/forums/feed.php
+      - kind: reddit
+        sub: Coffee
+        title: Coffee Drinkers
+      - kind: reddit
+        sub: espresso
+        title: Espresso Geeks
+
+  - name: Money, Cards & Travel
+    forums:
+      - kind: generic_rss
+        title: FlyerTalk
+        url: https://www.flyertalk.com/forum/external.php?type=RSS2
+      - kind: generic_rss
+        title: Bogleheads
+        url: https://www.bogleheads.org/forum/feed.php
+      - kind: generic_rss
+        title: MMM Forum
+        url: https://forum.mrmoneymustache.com/index.php?action=.xml;type=rss2
+      - kind: reddit
+        sub: amex
+        title: American Express
+      - kind: reddit
+        sub: churning
+        title: Churning
+      - kind: reddit
+        sub: CreditCards
+        title: Credit Cards
+      - kind: reddit
+        sub: delta
+        title: Delta Air Lines
+      - kind: reddit
+        sub: unitedairlines
+        title: United Airlines
+      - kind: reddit
+        sub: travel
+        title: Travel General
+      - kind: reddit
+        sub: budget
+        title: Budgeting
+      - kind: reddit
+        sub: Frugal
+        title: Frugal Living
+      - kind: reddit
+        sub: financialindependence
+        title: Financial Independence
+      - kind: reddit
+        sub: liquidbudget
+        title: Liquid Budget
+      - kind: reddit
+        sub: MoneyDiariesACTIVE
+        title: Money Diaries
+      - kind: reddit
+        sub: OriginFinancial
+        title: Origin Financial
+      - kind: reddit
+        user: YNAB_youneedabudget
+        title: YNAB Official
+
+  - name: Music & Audio
+    forums:
+      - kind: generic_rss
+        title: Head-Fi (DAPs)
+        url: https://www.head-fi.org/forums/-/index.rss
+      - kind: generic_rss
+        title: The Gear Page (Guitar)
+        url: https://www.thegearpage.net/board/index.rss
+      - kind: reddit
+        sub: Music
+        title: Music General
+      - kind: reddit
+        sub: rnb
+        title: R&B
+      - kind: reddit
+        sub: BreakingBenjamin
+        title: Breaking Benjamin
+      - kind: reddit
+        sub: Guitar
+        title: Guitar Players
+      - kind: reddit
+        sub: DigitalAudioPlayer
+        title: Digital Audio Players
+      - kind: reddit
+        sub: Snipd
+        title: Snipd Users
+      - kind: reddit
+        sub: spotify
+        title: Spotify
+
+  - name: Gaming
+    forums:
+      - kind: generic_rss
+        title: ResetEra
+        url: https://www.resetera.com/forums/-/index.rss
+      - kind: reddit
+        sub: gaming
+        title: Gaming General
+      - kind: reddit
+        sub: gtaonline
+        title: GTA Online
+      - kind: reddit
+        sub: halo
+        title: Halo
+      - kind: reddit
+        sub: AbioticFactor
+        title: Abiotic Factor
+
+  - name: Home & Lifestyle
+    forums:
+      - kind: reddit
+        sub: centuryhomes
+        title: Century Homes
+      - kind: xenforo
+        title: Style Forum
+        url: https://www.styleforum.net/forums/-/index.rss
+      - kind: reddit
+        sub: malefashionadvice
+        title: Menswear
+      - kind: reddit
+        sub: DesignPorn
+        title: Design Gallery
+      - kind: reddit
+        sub: MapPorn
+        title: Map Gallery
+      - kind: reddit
+        sub: Costco
+        title: Costco
+      - kind: reddit
+        sub: tattoo
+        title: Tattoo
+      - kind: reddit
+        sub: agedtattoos
+        title: Aged Tattoos
+      - kind: reddit
+        sub: ADHD
+        title: ADHD
+      - kind: reddit
+        sub: gtd
+        title: Getting Things Done
+      - kind: reddit
+        sub: loseit
+        title: Weight Loss
+      - kind: reddit
+        sub: lactoseintolerant
+        title: Lactose Intolerant
+      - kind: reddit
+        sub: ZeroWaste
+        title: Zero Waste
+      - kind: reddit
+        sub: Green
+        title: Green Living
+      - kind: reddit
+        sub: Eclosion
+        title: Eclosion (Macro)
+
+  - name: Expat & Ireland
+    forums:
+      - kind: reddit
+        sub: IrishCitizenship
+        title: Irish Citizenship
+      - kind: reddit
+        sub: MoveToIreland
+        title: Move to Ireland
+      - kind: reddit
+        sub: expats
+        title: Expats
+
+  - name: News & General Chat
+    forums:
+      - kind: reddit
+        sub: news
+        title: US News
+      - kind: reddit
+        sub: worldnews
+        title: World News
+      - kind: reddit
+        sub: AskReddit
+        title: Ask Reddit
+      - kind: reddit
+        sub: NoStupidQuestions
+        title: No Stupid Questions
+      - kind: reddit
+        sub: todayilearned
+        title: Today I Learned
+      - kind: reddit
+        sub: pics
+        title: Pictures
+      - kind: reddit
+        sub: Fauxmoi
+        title: Celeb Gossip
+      - kind: reddit
+        sub: MBMBAM
+        title: My Brother, My Brother and Me
+      - kind: reddit
+        sub: roosterteeth
+        title: Rooster Teeth
+      - kind: reddit
+        sub: space
+        title: Space
+      - kind: reddit
+        sub: RelayForReddit
+        title: Relay for Reddit (legacy)
+
+  - name: Cute & Cats
+    forums:
+      - kind: reddit
+        sub: kittyhasaquestion
+        title: Kitty Has a Question
+      - kind: reddit
+        sub: crosseyedcats
+        title: Cross-Eyed Cats
+      - kind: reddit
+        sub: airplaneears
+        title: Airplane Ears

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Cork board base -->
+    <radialGradient id="cork" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0%"   stop-color="#d8a366"/>
+      <stop offset="60%"  stop-color="#c4894a"/>
+      <stop offset="100%" stop-color="#8c5a26"/>
+    </radialGradient>
+
+    <!-- Cork speckle: small dark dots scattered for texture (rendered as a tile pattern). -->
+    <pattern id="speckle" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+      <circle cx="6"  cy="11" r="1.5" fill="#5b3712" opacity="0.45"/>
+      <circle cx="22" cy="48" r="1.2" fill="#7a4a1c" opacity="0.40"/>
+      <circle cx="44" cy="20" r="2.0" fill="#4a2a08" opacity="0.35"/>
+      <circle cx="55" cy="55" r="1.0" fill="#6a3a14" opacity="0.50"/>
+      <circle cx="14" cy="32" r="1.4" fill="#3e2208" opacity="0.30"/>
+      <circle cx="36" cy="40" r="1.0" fill="#7a4a1c" opacity="0.55"/>
+      <circle cx="58" cy="8"  r="1.6" fill="#3e2208" opacity="0.40"/>
+      <circle cx="2"  cy="58" r="1.2" fill="#5b3712" opacity="0.45"/>
+      <circle cx="30" cy="6"  r="0.9" fill="#6a3a14" opacity="0.55"/>
+    </pattern>
+
+    <!-- Card paper (cream w/ subtle gradient) -->
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#fefcf4"/>
+      <stop offset="100%" stop-color="#ece5d0"/>
+    </linearGradient>
+
+    <!-- vBulletin-blue title bar on each card -->
+    <linearGradient id="cardBar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#5b86b8"/>
+      <stop offset="100%" stop-color="#2f5688"/>
+    </linearGradient>
+
+    <!-- Pushpin (red) -->
+    <radialGradient id="pin" cx="0.35" cy="0.30" r="0.85">
+      <stop offset="0%"   stop-color="#ff8d80"/>
+      <stop offset="45%"  stop-color="#cc2a1a"/>
+      <stop offset="100%" stop-color="#7a0a02"/>
+    </radialGradient>
+
+    <!-- Card drop shadow -->
+    <filter id="cardShadow" x="-15%" y="-15%" width="130%" height="135%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="8" result="o"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Pin shadow -->
+    <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="3" result="o"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Bevel sheen on the whole icon -->
+    <linearGradient id="bevel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.30)"/>
+      <stop offset="8%"   stop-color="rgba(255,255,255,0.00)"/>
+      <stop offset="92%"  stop-color="rgba(0,0,0,0.00)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.35)"/>
+    </linearGradient>
+
+    <!-- macOS Big Sur+ icon template: 1024 canvas, 824 visible squircle,
+         100px margin on each side, rx ≈ 22.37% of body width. -->
+    <clipPath id="squircle">
+      <rect x="100" y="100" width="824" height="824" rx="185" ry="185"/>
+    </clipPath>
+
+    <!-- One reusable card group: paper + folder + title bar + meta line.
+         Authoring origin at top-left of card; 740x190. -->
+    <g id="threadCard">
+      <!-- paper -->
+      <rect width="740" height="190" rx="14" ry="14" fill="url(#paper)"
+            stroke="#8a6a3a" stroke-opacity="0.55" stroke-width="2"/>
+      <!-- top inner highlight -->
+      <rect x="2" y="2" width="736" height="20" rx="12" ry="12" fill="rgba(255,255,255,0.55)"/>
+
+      <!-- folder icon at left -->
+      <g transform="translate(30,46)">
+        <!-- folder back tab -->
+        <path d="M0 16 Q0 0 16 0 H50 L66 16 H110 Q126 16 126 32 V94 Q126 110 110 110 H16 Q0 110 0 94 Z"
+              fill="#d4a017" stroke="#7a5a08" stroke-width="2.5"/>
+        <!-- folder face -->
+        <rect x="6" y="30" width="116" height="76" rx="6" fill="#f0c352" stroke="#7a5a08" stroke-width="2.5"/>
+      </g>
+
+      <!-- title bar (vB-blue) -->
+      <rect x="180" y="42" width="510" height="42" rx="6" fill="url(#cardBar)"
+            stroke="#1c365a" stroke-width="2"/>
+      <!-- title bar top highlight -->
+      <rect x="184" y="46" width="502" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
+
+      <!-- meta line (gray) -->
+      <rect x="180" y="108" width="380" height="14" rx="4" fill="#a8a08e"/>
+      <rect x="180" y="132" width="260" height="10" rx="4" fill="#c0b8a5"/>
+    </g>
+  </defs>
+
+  <g clip-path="url(#squircle)">
+   <g transform="translate(100,100) scale(0.8047)">
+    <!-- Cork background -->
+    <rect width="1024" height="1024" fill="url(#cork)"/>
+    <rect width="1024" height="1024" fill="url(#speckle)"/>
+
+    <!-- Wooden frame (thin inner border to suggest a corkboard frame) -->
+    <rect x="18" y="18" width="988" height="988" rx="216" ry="216"
+          fill="none" stroke="#5a3614" stroke-width="6" opacity="0.55"/>
+    <rect x="34" y="34" width="956" height="956" rx="208" ry="208"
+          fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+
+    <!-- Three overlapping pinned thread cards, slight rotations for personality. -->
+    <!-- Back card (tilted left) -->
+    <g transform="translate(180,166) rotate(-5)" filter="url(#cardShadow)">
+      <use href="#threadCard"/>
+      <!-- pin -->
+      <g filter="url(#pinShadow)" transform="translate(60,-18)">
+        <circle cx="0" cy="0" r="28" fill="url(#pin)" stroke="#5a0a02" stroke-width="3"/>
+        <circle cx="-9" cy="-9" r="8" fill="rgba(255,255,255,0.55)"/>
+      </g>
+    </g>
+
+    <!-- Middle card (almost straight) -->
+    <g transform="translate(145,426) rotate(1.5)" filter="url(#cardShadow)">
+      <use href="#threadCard"/>
+      <g filter="url(#pinShadow)" transform="translate(665,-18)">
+        <circle cx="0" cy="0" r="28" fill="url(#pin)" stroke="#5a0a02" stroke-width="3"/>
+        <circle cx="-9" cy="-9" r="8" fill="rgba(255,255,255,0.55)"/>
+      </g>
+    </g>
+
+    <!-- Front card (tilted right) -->
+    <g transform="translate(180,686) rotate(-3)" filter="url(#cardShadow)">
+      <use href="#threadCard"/>
+      <g filter="url(#pinShadow)" transform="translate(370,-18)">
+        <circle cx="0" cy="0" r="28" fill="url(#pin)" stroke="#5a0a02" stroke-width="3"/>
+        <circle cx="-9" cy="-9" r="8" fill="rgba(255,255,255,0.55)"/>
+      </g>
+    </g>
+
+    <!-- Global bevel overlay -->
+    <rect width="1024" height="1024" fill="url(#bevel)"/>
+   </g>
+  </g>
+</svg>

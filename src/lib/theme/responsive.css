@@ -1,0 +1,96 @@
+/* Mobile-collapse rules for the classic vBulletin grid. */
+
+@media (max-width: 760px) {
+  .vb-content {
+    padding: 4px;
+    margin: 4px;
+  }
+  .vb-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  .vb-subbar {
+    display: none;
+  }
+
+  .vb-forum-row {
+    grid-template-columns: 32px 1fr 1fr;
+    grid-template-areas:
+      "icon main    main"
+      "icon last    last"
+      ".    threads posts";
+    row-gap: 2px;
+  }
+  .vb-forum-row > div {
+    border-right: none;
+  }
+  .vb-forum-row .icon { grid-area: icon; }
+  .vb-forum-row .main { grid-area: main; }
+  .vb-forum-row .lastpost {
+    grid-area: last;
+    border-top: 1px dashed var(--vb-border);
+    padding-top: 4px;
+  }
+  .vb-forum-row .count {
+    text-align: left;
+    border-top: none;
+    padding-top: 0;
+    padding-bottom: 6px;
+    color: var(--vb-muted);
+    font-size: 10px;
+  }
+  .vb-forum-row .count.threads { grid-area: threads; }
+  .vb-forum-row .count.posts   { grid-area: posts; }
+  .vb-forum-row .count .value {
+    display: inline;
+    font-weight: bold;
+    margin-right: 4px;
+    font-size: 11px;
+    color: var(--vb-page-text);
+  }
+  .vb-forum-row .count .label {
+    display: inline;
+    font-size: 9px;
+    color: #888;
+  }
+
+  .vb-thread-row {
+    grid-template-columns: 32px 1fr 1fr;
+    grid-template-areas:
+      "icon main    main"
+      ".    replies views"
+      ".    last    last";
+    row-gap: 2px;
+  }
+  .vb-thread-row > div {
+    border-right: none;
+  }
+  .vb-thread-row .icon { grid-area: icon; }
+  .vb-thread-row .main { grid-area: main; }
+  .vb-thread-row .num {
+    text-align: left;
+    color: var(--vb-muted);
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+  .vb-thread-row .num .mlabel {
+    display: inline;
+    color: #888;
+    margin-right: 3px;
+  }
+  .vb-thread-row .num.replies { grid-area: replies; }
+  .vb-thread-row .num.views   { grid-area: views; }
+  .vb-thread-row .num .value {
+    font-weight: bold;
+    color: var(--vb-page-text);
+    font-size: 11px;
+  }
+  .vb-thread-row .lastpost {
+    grid-area: last;
+    border-top: 1px dashed var(--vb-border);
+    padding-top: 4px;
+  }
+}

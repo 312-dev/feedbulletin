@@ -1,0 +1,51 @@
+{
+  "kind": "Listing",
+  "data": {
+    "after": "t3_xyz",
+    "before": null,
+    "children": [
+      {
+        "kind": "t3",
+        "data": {
+          "id": "abc123",
+          "title": "1923 Foursquare: should I strip the lead paint myself?",
+          "author": "oldhouselove",
+          "subreddit": "centuryhomes",
+          "permalink": "/r/centuryhomes/comments/abc123/1923_foursquare/",
+          "url": "https://www.reddit.com/r/centuryhomes/comments/abc123/1923_foursquare/",
+          "num_comments": 47,
+          "created_utc": 1714512000.0,
+          "selftext": "Bought the place last fall and the trim is flaking..."
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "def456",
+          "title": "Found a Victorian transom window in the attic — restore or sell?",
+          "author": "preservationist",
+          "subreddit": "centuryhomes",
+          "permalink": "/r/centuryhomes/comments/def456/transom_window/",
+          "url": "https://www.reddit.com/r/centuryhomes/comments/def456/transom_window/",
+          "num_comments": 12,
+          "created_utc": 1714425600.0,
+          "selftext": ""
+        }
+      },
+      {
+        "kind": "t3",
+        "data": {
+          "id": "ghi789",
+          "title": "Plaster repair: lime vs gypsum",
+          "author": "[deleted]",
+          "subreddit": "centuryhomes",
+          "permalink": "/r/centuryhomes/comments/ghi789/plaster_repair/",
+          "url": "https://www.reddit.com/r/centuryhomes/comments/ghi789/plaster_repair/",
+          "num_comments": 3,
+          "created_utc": 1714339200.0,
+          "selftext": null
+        }
+      }
+    ]
+  }
+}

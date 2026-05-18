@@ -1,0 +1,144 @@
+name: Release
+
+# Push a tag like `v0.2.0` to trigger this. The workflow creates a draft
+# GitHub Release, then builds installers for macOS (arm64 + x64), Windows
+# (NSIS + MSI), and Linux (AppImage + deb), and attaches them as release
+# assets. Once all platforms finish, the release is published.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.result }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create draft release
+        id: create
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `feedBulletin ${tag}`,
+              body: [
+                '## What\'s in this release',
+                '',
+                '_Release notes will be filled in shortly. Until then, see the merged PRs since the previous tag._',
+                '',
+                '## Installers',
+                '',
+                '| Platform | File |',
+                '|---|---|',
+                '| macOS (Apple Silicon) | `feedBulletin_<ver>_aarch64.dmg` |',
+                '| macOS (Intel) | `feedBulletin_<ver>_x64.dmg` |',
+                '| Windows x86_64 (installer) | `feedBulletin_<ver>_x64-setup.exe` |',
+                '| Windows x86_64 (MSI) | `feedBulletin_<ver>_x64_en-US.msi` |',
+                '| Linux x86_64 (AppImage) | `feedBulletin_<ver>_amd64.AppImage` |',
+                '| Linux x86_64 (deb) | `feedBulletin_<ver>_amd64.deb` |',
+                '',
+                'macOS bundles are unsigned — right-click → Open the first time to get past Gatekeeper.',
+              ].join('\n'),
+              draft: true,
+              prerelease: false,
+            });
+            return data.id;
+
+  build-and-upload:
+    name: Build ${{ matrix.label }}
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+          - os: macos-latest
+            label: macOS (Intel)
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+          - os: ubuntu-latest
+            label: Linux x86_64
+            target: x86_64-unknown-linux-gnu
+            args: ""
+          - os: windows-latest
+            label: Windows x86_64
+            target: x86_64-pc-windows-msvc
+            args: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo registry + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
+      - name: Linux system deps
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            libsoup-3.0-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build & upload (tauri-action)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          args: ${{ matrix.args }}
+
+  publish-release:
+    name: Publish the release
+    needs: [create-release, build-and-upload]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark release as published
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ needs.create-release.outputs.release_id }},
+              draft: false,
+            });

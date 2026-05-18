@@ -1,0 +1,27 @@
+categories:
+  - name: Cars
+    forums:
+      - kind: reddit
+        sub: centuryhomes
+        title: Old House Restoration
+      - kind: xenforo
+        title: Styleforum
+        url: https://www.styleforum.net/forums/-/index.rss
+
+  - name: Chicago
+    forums:
+      - kind: reddit
+        sub: chicago
+        title: The Chicago Lounge
+      - kind: generic_rss
+        title: LTHForum
+        url: https://www.lthforum.com/feed/
+
+  - name: Tech
+    forums:
+      - kind: reddit
+        sub: homeassistant
+        title: Home Assistant Hub
+      - kind: reddit
+        user: doppio
+        title: doppio

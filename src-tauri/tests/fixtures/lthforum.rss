@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>LTHForum</title>
+    <link>https://www.lthforum.com/</link>
+    <description>Chicago dining and food forum</description>
+    <item>
+      <title>Best ramen in 2026?</title>
+      <link>https://www.lthforum.com/topic/best-ramen-2026</link>
+      <pubDate>Sat, 04 May 2026 19:00:00 GMT</pubDate>
+      <dc:creator>noodlehead</dc:creator>
+      <description>The annual roundup thread is back.</description>
+    </item>
+    <item>
+      <title>RIP: Old Town favorite closing after 38 years</title>
+      <link>https://www.lthforum.com/topic/old-town-closing</link>
+      <pubDate>Fri, 03 May 2026 12:30:00 GMT</pubDate>
+      <dc:creator>chicagoeats</dc:creator>
+      <description>Sad news from Wells Street...</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Styleforum - Recent Threads</title>
+    <link>https://www.styleforum.net/forums/-/index.rss</link>
+    <description>The latest threads on Styleforum</description>
+    <item>
+      <title>Suit alterations: how slim is too slim?</title>
+      <link>https://www.styleforum.net/threads/suit-alterations.700001/</link>
+      <pubDate>Mon, 06 May 2026 14:22:00 GMT</pubDate>
+      <dc:creator>tailoredtim</dc:creator>
+      <guid isPermaLink="true">https://www.styleforum.net/threads/suit-alterations.700001/</guid>
+      <description><![CDATA[Picked up a new charcoal suit last week and the shoulders need work...]]></description>
+      <slash:comments>23</slash:comments>
+    </item>
+    <item>
+      <title>WAYWT - May 2026</title>
+      <link>https://www.styleforum.net/threads/waywt-may-2026.700002/</link>
+      <pubDate>Sun, 05 May 2026 18:11:00 GMT</pubDate>
+      <dc:creator>menswearmaven</dc:creator>
+      <guid isPermaLink="true">https://www.styleforum.net/threads/waywt-may-2026.700002/</guid>
+      <description><![CDATA[The monthly thread.]]></description>
+      <slash:comments>412</slash:comments>
+    </item>
+    <item>
+      <title>Found: NWT Drake's tie at thrift</title>
+      <link>https://www.styleforum.net/threads/drakes-thrift.700003/</link>
+      <pubDate>Sun, 05 May 2026 09:00:00 GMT</pubDate>
+      <dc:creator>thriftkingdom</dc:creator>
+      <guid isPermaLink="true">https://www.styleforum.net/threads/drakes-thrift.700003/</guid>
+      <description><![CDATA[Couldn't believe my eyes...]]></description>
+      <slash:comments>8</slash:comments>
+    </item>
+  </channel>
+</rss>

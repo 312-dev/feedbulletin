@@ -1,0 +1,689 @@
+/*
+   2012 vBulletin v4 — "Default Style" palette, AND the structural rules
+   every skin reuses. The --vb-* custom properties below are the palette;
+   the layout rules underneath (.vb-banner, .vb-forum-row, etc.) consume them
+   and are identical across skins.
+
+   Skin selection model — two attributes on <html>:
+     data-theme="<slug>"     — palette family (this file owns the "vb-classic"
+                                slug; sibling files in skins/ own the rest)
+     data-mode="light|dark"  — light/dark within that family
+
+   Other skins live in src/lib/theme/skins/<slug>.css and declare the SAME
+   --vb-* names under their selectors. They piggyback on the structural rules
+   here.
+*/
+
+/* :root holds the default-fallback palette — equivalent to the vb-classic
+   light skin. This way, if data-theme hasn't been set yet (first paint before
+   the store mounts), the app already looks like the historical default
+   instead of unstyled. */
+:root,
+[data-theme="vb-classic"] {
+  /* vB4 default-style palette */
+  --vb-page-bg:           #E1E3E5;
+  --vb-content-bg:        #FFFFFF;
+  --vb-page-text:         #000000;
+
+  --vb-border:            #C8CDD3;
+  --vb-row-hover:         #EEF2F8;
+  --vb-row-bg-a:          #FFFFFF;
+  --vb-row-bg-b:          #F4F4F4;
+  --vb-row-bg-read:       #FAFAFA;
+  --vb-row-read-text:     #555555;
+
+  /* Category bar gradient */
+  --vb-cat-grad-from:     #4F76A6;
+  --vb-cat-grad-to:       #355082;
+  --vb-cat-text:          #FFFFFF;
+
+  /* Page header banner (darker) */
+  --vb-banner-grad-from:  #2E3F5C;
+  --vb-banner-grad-to:    #1A2940;
+  --vb-banner-text:       #FFFFFF;
+
+  /* Subbar (column headers) */
+  --vb-subbar-bg:         #E8EBF0;
+  --vb-subbar-text:       #2B4674;
+
+  /* Links — classic vB blue */
+  --vb-link:              #22229C;
+  --vb-link-hover:        #C2400D;
+  --vb-link-visited:      #551A8B;
+
+  --vb-muted:             #666666;
+  --vb-meta:              #444444;
+  --vb-very-muted:        #888888;
+
+  /* Toolbar / breadcrumb shells */
+  --vb-toolbar-bg:        #F8F8F8;
+  --vb-toolbar-sep:       #BBBBBB;
+
+  /* Classic vB4 raised button */
+  --vb-btn-grad-from:     #F5F5F5;
+  --vb-btn-grad-to:       #D8D8D8;
+  --vb-btn-text:          #222222;
+  --vb-btn-border:        #999999;
+  --vb-btn-hover-from:    #FFFFFF;
+  --vb-btn-hover-to:      #E4E4E4;
+  --vb-btn-hover-text:    #000000;
+  --vb-btn-active-from:   #3A5F8F;
+  --vb-btn-active-to:     #2A4B73;
+  --vb-btn-active-text:   #FFFFFF;
+  --vb-btn-active-border: #2A4B73;
+  --vb-btn-disabled-text: #AAAAAA;
+  --vb-btn-text-shadow:   rgba(255, 255, 255, 0.8);
+
+  /* Sort/pager light gradient pair (used many places) */
+  --vb-soft-grad-from:    #F4F4F4;
+  --vb-soft-grad-to:      #E0E0E0;
+  --vb-soft-text:         #333333;
+
+  /* Status pill (errors / ok) */
+  --vb-pill-bg:           #FEE2E2;
+  --vb-pill-text:         #A33333;
+  --vb-pill-border:       #D88888;
+  --vb-pill-ok-bg:        #EEF8E8;
+  --vb-pill-ok-text:      #3A7D33;
+  --vb-pill-ok-border:    #9BC89B;
+
+  /* Native post view — blockquote, post-title rule, skeleton */
+  --vb-blockquote-bg:        #FAFAFA;
+  --vb-blockquote-border:    #C8CDD3;
+  --vb-post-title-underline: #C8D1DD;
+  --vb-skeleton-from:        rgba(34, 34, 156, 0.12);
+  --vb-skeleton-mid:         rgba(34, 34, 156, 0.20);
+
+  /* Decorative drop-shadow under content box — kept slightly stronger in dark */
+  --vb-content-shadow:    rgba(0, 0, 0, 0.10);
+  --vb-banner-shadow:     rgba(0, 0, 0, 0.40);
+  --vb-banner-highlight:  rgba(255, 255, 255, 0.10);
+
+  /* Verdana FIRST — critical for 2012 feel */
+  --vb-font-family:       Verdana, Tahoma, "Lucida Sans", sans-serif;
+  --vb-font-size:         11px;
+  --vb-font-size-row:     12px;
+  --vb-font-size-forum:   12px;
+  --vb-font-size-desc:    11px;
+  --vb-font-size-lp:      10px;
+
+  color-scheme: light;
+}
+
+[data-theme="vb-classic"][data-mode="dark"],
+[data-mode="dark"]:not([data-theme]) {
+  --vb-page-bg:           #1B1D20;
+  --vb-content-bg:        #252830;
+  --vb-page-text:         #D8DBE0;
+
+  --vb-border:            #3A3F47;
+  --vb-row-hover:         #2E333D;
+  --vb-row-bg-a:          #252830;
+  --vb-row-bg-b:          #2A2E36;
+  /* Visited rows dim DOWN (not up) in dark mode — slightly darker than
+     row-bg-a so the eye reads "this was already opened". */
+  --vb-row-bg-read:       #1F2229;
+  --vb-row-read-text:     #7A7F88;
+
+  --vb-cat-grad-from:     #2A4470;
+  --vb-cat-grad-to:       #1E3056;
+  --vb-cat-text:          #E6EAF2;
+
+  --vb-banner-grad-from:  #161F30;
+  --vb-banner-grad-to:    #0D1422;
+  --vb-banner-text:       #E6EAF2;
+
+  --vb-subbar-bg:         #2E333D;
+  --vb-subbar-text:       #9CB4D6;
+
+  /* Brighter, cooler blue so links survive the dark cell. */
+  --vb-link:              #7EA4E6;
+  --vb-link-hover:        #FF9466;
+  --vb-link-visited:      #B294D0;
+
+  --vb-muted:             #8A8F98;
+  --vb-meta:              #A8ADB6;
+  --vb-very-muted:        #6E737B;
+
+  --vb-toolbar-bg:        #2A2E36;
+  --vb-toolbar-sep:       #4A4F58;
+
+  --vb-btn-grad-from:     #383D46;
+  --vb-btn-grad-to:       #2A2E36;
+  --vb-btn-text:          #D8DBE0;
+  --vb-btn-border:        #4A4F58;
+  --vb-btn-hover-from:    #424751;
+  --vb-btn-hover-to:      #34394260;
+  --vb-btn-hover-text:    #FFFFFF;
+  --vb-btn-active-from:   #4A6DA0;
+  --vb-btn-active-to:     #355684;
+  --vb-btn-active-text:   #FFFFFF;
+  --vb-btn-active-border: #355684;
+  --vb-btn-disabled-text: #555960;
+  --vb-btn-text-shadow:   rgba(0, 0, 0, 0.5);
+
+  --vb-soft-grad-from:    #2F343D;
+  --vb-soft-grad-to:      #262A32;
+  --vb-soft-text:         #C8CCD3;
+
+  --vb-pill-bg:           #4A2222;
+  --vb-pill-text:         #FFB5B5;
+  --vb-pill-border:       #6E3030;
+  --vb-pill-ok-bg:        #1F3A22;
+  --vb-pill-ok-text:      #9DDB99;
+  --vb-pill-ok-border:    #355838;
+
+  --vb-blockquote-bg:        #1F2228;
+  --vb-blockquote-border:    #3A3F47;
+  --vb-post-title-underline: #3A4555;
+  --vb-skeleton-from:        rgba(126, 164, 230, 0.14);
+  --vb-skeleton-mid:         rgba(126, 164, 230, 0.24);
+
+  --vb-content-shadow:    rgba(0, 0, 0, 0.45);
+  --vb-banner-shadow:     rgba(0, 0, 0, 0.60);
+  --vb-banner-highlight:  rgba(255, 255, 255, 0.05);
+
+  color-scheme: dark;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--vb-page-bg);
+  color: var(--vb-page-text);
+  font-family: var(--vb-font-family);
+  font-size: var(--vb-font-size);
+  line-height: 1.4;
+}
+
+a {
+  color: var(--vb-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--vb-link-hover);
+  text-decoration: underline;
+}
+a:visited {
+  color: var(--vb-link-visited);
+}
+/* Forum titles and last-post titles stay blue even when visited */
+.vb-forum-row .title,
+.vb-forum-row .title:visited,
+.lastpost .lp-title,
+.lastpost .lp-title:visited {
+  color: var(--vb-link);
+}
+
+/* ---------- Page shell ---------- */
+
+.vb-page {
+  min-height: 100vh;
+}
+
+/* Header banner spans full width */
+.vb-banner {
+  background: linear-gradient(
+    to bottom,
+    var(--vb-banner-grad-from) 0%,
+    var(--vb-banner-grad-to) 100%
+  );
+  color: var(--vb-banner-text);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-shadow: 0 1px 0 var(--vb-banner-shadow);
+  box-shadow: inset 0 -1px 0 var(--vb-banner-highlight);
+}
+.vb-banner h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  font-family: var(--vb-font-family);
+}
+.vb-banner h1 a,
+.vb-banner h1 a:visited {
+  color: var(--vb-banner-text);
+  text-decoration: none;
+}
+.vb-banner h1 a:hover {
+  text-decoration: underline;
+  color: color-mix(in srgb, var(--vb-banner-text) 90%, transparent);
+}
+.vb-banner .vb-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Centered content box max 1000px wide, drop shadow on gray bg */
+.vb-content {
+  max-width: 1000px;
+  margin: 12px auto 24px;
+  background: var(--vb-content-bg);
+  border: 1px solid var(--vb-border);
+  box-shadow: 0 1px 3px var(--vb-content-shadow);
+  padding: 8px;
+}
+
+/* ---------- Toolbar ---------- */
+
+.vb-toolbar {
+  background: var(--vb-toolbar-bg);
+  border: 1px solid var(--vb-border);
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--vb-font-size);
+  color: var(--vb-meta);
+}
+.vb-toolbar .vb-spacer {
+  flex: 1;
+}
+.vb-toolbar .vb-toolbar-sep {
+  color: var(--vb-toolbar-sep);
+}
+.vb-toolbar a {
+  color: var(--vb-link);
+  font-weight: bold;
+}
+.vb-sort-toggle {
+  font-family: inherit;
+  font-size: 11px;
+  padding: 1px 8px;
+  border: 1px solid var(--vb-border);
+  background: linear-gradient(to bottom, var(--vb-soft-grad-from), var(--vb-soft-grad-to));
+  color: var(--vb-soft-text);
+  cursor: pointer;
+  border-radius: 2px;
+  margin: 0 1px;
+}
+.vb-sort-toggle.active {
+  background: linear-gradient(to bottom, var(--vb-btn-active-from), var(--vb-btn-active-to));
+  color: var(--vb-btn-active-text);
+  border-color: var(--vb-btn-active-border);
+  font-weight: bold;
+}
+.vb-sort-toggle:hover:not(:disabled):not(.active) {
+  background: linear-gradient(to bottom, var(--vb-btn-hover-from), var(--vb-btn-hover-to));
+}
+.vb-sort-toggle:disabled {
+  color: var(--vb-btn-disabled-text);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.vb-pager {
+  gap: 4px;
+}
+.vb-pager-btn {
+  font-family: inherit;
+  font-size: 11px;
+  padding: 2px 7px;
+  min-width: 22px;
+  border: 1px solid var(--vb-border);
+  background: linear-gradient(to bottom, var(--vb-soft-grad-from), var(--vb-soft-grad-to));
+  color: var(--vb-soft-text);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.vb-pager-btn.active {
+  background: linear-gradient(to bottom, var(--vb-btn-active-from), var(--vb-btn-active-to));
+  color: var(--vb-btn-active-text);
+  border-color: var(--vb-btn-active-border);
+  font-weight: bold;
+  cursor: default;
+}
+.vb-pager-btn:hover:not(:disabled):not(.active) {
+  background: linear-gradient(to bottom, var(--vb-btn-hover-from), var(--vb-btn-hover-to));
+}
+.vb-pager-btn:disabled {
+  color: var(--vb-btn-disabled-text);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.vb-pager-ellipsis {
+  color: var(--vb-very-muted);
+  padding: 0 2px;
+}
+
+.vb-breadcrumb {
+  background: var(--vb-content-bg);
+  border: 1px solid var(--vb-border);
+  border-bottom: none;
+  padding: 5px 10px;
+  font-size: var(--vb-font-size);
+  color: var(--vb-meta);
+}
+.vb-breadcrumb a {
+  color: var(--vb-link);
+  font-weight: bold;
+}
+.vb-breadcrumb .sep {
+  color: var(--vb-very-muted);
+  padding: 0;
+}
+
+/* ---------- Classic vB4 button ---------- */
+
+.vb-btn {
+  display: inline-block;
+  background: linear-gradient(to bottom, var(--vb-btn-grad-from) 0%, var(--vb-btn-grad-to) 100%);
+  border: 1px solid var(--vb-btn-border);
+  border-radius: 3px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: var(--vb-font-family);
+  color: var(--vb-btn-text);
+  cursor: pointer;
+  text-decoration: none;
+  text-shadow: 0 1px 0 var(--vb-btn-text-shadow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.vb-btn:hover {
+  background: linear-gradient(to bottom, var(--vb-btn-hover-from) 0%, var(--vb-btn-hover-to) 100%);
+  color: var(--vb-btn-hover-text);
+  text-decoration: none;
+}
+.vb-btn:active {
+  background: linear-gradient(to bottom, var(--vb-btn-grad-to) 0%, var(--vb-btn-grad-from) 100%);
+}
+.vb-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+/* Buttons inside the dark banner stay light */
+.vb-banner .vb-btn {
+  color: var(--vb-btn-text);
+}
+
+/* ---------- Group (category box) ---------- */
+
+.vb-group {
+  margin-top: 8px;
+  border: 1px solid var(--vb-border);
+  background: var(--vb-row-bg-a);
+}
+
+.vb-cat {
+  background: linear-gradient(
+    to bottom,
+    var(--vb-cat-grad-from) 0%,
+    var(--vb-cat-grad-to) 100%
+  );
+  color: var(--vb-cat-text);
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--vb-border);
+  box-shadow: inset 0 1px 0 var(--vb-banner-highlight);
+}
+.vb-cat .caret {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.vb-subbar {
+  background: var(--vb-subbar-bg);
+  border-bottom: 1px solid var(--vb-border);
+  display: grid;
+  grid-template-columns: 32px 1fr 70px 70px 360px;
+  font-size: 10px;
+  color: var(--vb-subbar-text);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.vb-subbar > div {
+  padding: 5px 8px;
+  border-right: 1px solid var(--vb-border);
+}
+.vb-subbar > div:last-child {
+  border-right: none;
+}
+
+/* ---------- Forum row ---------- */
+
+.vb-forum-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 70px 70px 360px;
+  border-bottom: 1px solid var(--vb-border);
+  font-size: var(--vb-font-size-row);
+}
+.vb-forum-row:nth-child(even) {
+  background: var(--vb-row-bg-b);
+}
+.vb-forum-row:nth-child(odd) {
+  background: var(--vb-row-bg-a);
+}
+.vb-forum-row:hover {
+  background: var(--vb-row-hover);
+}
+.vb-forum-row > div {
+  padding: 8px;
+  border-right: 1px solid var(--vb-border);
+}
+.vb-forum-row > div:last-child {
+  border-right: none;
+}
+.vb-forum-row .icon {
+  text-align: center;
+  padding-top: 6px;
+}
+.vb-forum-row .folder {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 18px;
+  width: 18px;
+  height: 18px;
+  /* Tint the read folders gray so the unread (orange) folders pop in vB4 fashion. */
+  filter: grayscale(0.8) brightness(0.95);
+}
+.vb-forum-row.unread .folder {
+  /* Slightly punchier saturation + drop shadow to mimic the
+     "new posts" amber-rim look in vB4. */
+  filter: none;
+  text-shadow: 0 0 1px rgba(216, 130, 30, 0.5);
+}
+.vb-forum-row .title {
+  font-weight: normal;
+  font-size: var(--vb-font-size-forum);
+  color: var(--vb-link);
+}
+.vb-forum-row.unread .title {
+  font-weight: 700;
+}
+.vb-forum-row .title:hover {
+  color: var(--vb-link-hover);
+}
+.vb-forum-row .desc {
+  color: var(--vb-muted);
+  font-size: var(--vb-font-size-desc);
+  font-style: italic;
+  margin-top: 2px;
+}
+.vb-forum-row .platform {
+  color: var(--vb-muted);
+  font-size: 10px;
+  font-style: italic;
+  margin-top: 1px;
+}
+.vb-forum-row .count {
+  text-align: right;
+  color: var(--vb-meta);
+  font-variant-numeric: tabular-nums;
+}
+.vb-forum-row .count .value {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--vb-page-text);
+}
+.vb-forum-row .count .label {
+  display: block;
+  font-size: 9px;
+  color: var(--vb-very-muted);
+}
+
+.vb-forum-row .lastpost {
+  font-size: var(--vb-font-size-lp);
+  color: var(--vb-meta);
+  line-height: 1.4;
+}
+.vb-forum-row .lastpost .lp-title {
+  display: block;
+  font-weight: normal;
+  color: var(--vb-link);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vb-forum-row .lastpost .lp-title:hover {
+  color: var(--vb-link-hover);
+  text-decoration: underline;
+}
+.vb-forum-row .lastpost .lp-by {
+  color: var(--vb-meta);
+  font-size: 10px;
+}
+.vb-forum-row .lastpost .lp-author {
+  font-weight: bold;
+  color: var(--vb-meta);
+}
+.vb-forum-row .lastpost .lp-when {
+  color: var(--vb-very-muted);
+  font-size: 10px;
+}
+.vb-forum-row .lastpost .lp-empty {
+  color: var(--vb-very-muted);
+  font-size: 10px;
+}
+.vb-forum-row .lastpost .lp-unavailable {
+  color: var(--vb-very-muted);
+  font-size: 10px;
+  font-style: italic;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.vb-forum-row .lastpost .lp-unavailable:hover {
+  color: var(--vb-link);
+  text-decoration: underline;
+}
+.vb-forum-row .lastpost .lp-unavailable-icon {
+  margin-left: 3px;
+  opacity: 0.85;
+}
+
+/* ---------- Thread list ---------- */
+
+.vb-thread-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 70px 70px 200px;
+  border-bottom: 1px solid var(--vb-border);
+  font-size: var(--vb-font-size-row);
+}
+.vb-thread-row:nth-child(even) { background: var(--vb-row-bg-b); }
+.vb-thread-row:nth-child(odd)  { background: var(--vb-row-bg-a); }
+.vb-thread-row:hover           { background: var(--vb-row-hover); }
+.vb-thread-row > div {
+  padding: 7px 8px;
+  border-right: 1px solid var(--vb-border);
+}
+.vb-thread-row > div:last-child { border-right: none; }
+.vb-thread-row .icon {
+  text-align: center;
+  padding-top: 7px;
+}
+.vb-thread-row .folder-thread {
+  font-size: 14px;
+  line-height: 14px;
+}
+.vb-thread-row .title {
+  font-weight: normal;
+  font-size: 12px;
+  color: var(--vb-link);
+  display: block;
+}
+.vb-thread-row .title:hover { color: var(--vb-link-hover); }
+.vb-thread-row .meta {
+  color: var(--vb-muted);
+  font-size: 10px;
+  margin-top: 2px;
+}
+.vb-thread-row .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--vb-meta);
+}
+.vb-thread-row .num .value {
+  display: block;
+  font-weight: bold;
+  color: var(--vb-page-text);
+}
+.vb-thread-row .num .mlabel {
+  display: none;
+}
+.vb-thread-row .lastpost {
+  font-size: 10px;
+  color: var(--vb-meta);
+}
+
+.vb-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--vb-muted);
+  background: var(--vb-row-bg-a);
+}
+
+/* ---------- Footer ---------- */
+
+.vb-footer {
+  margin-top: 12px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: var(--vb-muted);
+  border-top: 1px solid var(--vb-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.vb-footer-left {
+  text-align: left;
+}
+.vb-footer-right {
+  text-align: right;
+  color: var(--vb-very-muted);
+}
+
+/* ---------- Error pill ---------- */
+
+.vb-status-pill {
+  display: inline-block;
+  background: var(--vb-pill-bg);
+  color: var(--vb-pill-text);
+  border: 1px solid var(--vb-pill-border);
+  padding: 0 4px;
+  font-size: 9px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+.vb-status-pill.ok {
+  background: var(--vb-pill-ok-bg);
+  color: var(--vb-pill-ok-text);
+  border-color: var(--vb-pill-ok-border);
+}
