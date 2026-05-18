@@ -23,7 +23,7 @@ serde_yaml = "0.9"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
 futures = "0.3"
 
-reqwest = { version = "0.12", default-features = false, features = ["default-tls", "json", "gzip", "brotli"] }
+reqwest = { version = "0.13", default-features = false, features = ["default-tls", "json", "gzip", "brotli"] }
 
 sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros", "migrate", "chrono"] }
 
