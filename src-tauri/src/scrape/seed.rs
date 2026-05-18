@@ -41,6 +41,14 @@ const SEEDS: &[(&str, &str)] = &[
         "xdaforums.com__xenforo_text_thread.md",
         include_str!("seed_profiles/xdaforums.com__xenforo_text_thread.md"),
     ),
+    (
+        "g80.bimmerpost.com__vbulletin_thread.md",
+        include_str!("seed_profiles/g80.bimmerpost.com__vbulletin_thread.md"),
+    ),
+    (
+        "www.bimmerpost.com__vbulletin_thread.md",
+        include_str!("seed_profiles/www.bimmerpost.com__vbulletin_thread.md"),
+    ),
 ];
 
 #[derive(Debug)]
@@ -104,22 +112,44 @@ fn unquote(s: &str) -> &str {
 
 /// Insert any bundled profile not already present in the user's DB.
 ///
+/// Override policy:
+///   - source = "manual" / "anthropic-critique" / "seed" → never override
+///     (manual = user direct edit; anthropic-critique = post-render validation
+///      refinement; seed = already a bundled profile).
+///   - source = "anthropic" → OVERRIDE if a bundled seed exists. Reason: a
+///     raw one-shot learner output is inherently best-effort, and when we
+///     ship a hand-verified seed for the same host, the seed is almost
+///     always better. Bumps the seed in for users who hit the host before
+///     this release added the bundled profile.
+///   - any other / unknown source → treat as user-touched, don't override.
+///
 /// Idempotent and safe to call on every startup. Returns the count actually
-/// inserted (so callers can log if they want).
+/// inserted or overridden.
 pub async fn seed_missing_profiles(pool: &SqlitePool) -> Result<usize> {
-    let mut inserted = 0usize;
+    let mut written = 0usize;
     for (name, body) in SEEDS {
         let Some(p) = parse_seed(body) else {
             warn!("seed profile {name} failed to parse — skipping");
             continue;
         };
-        // The user-edit invariant: if there's already a profile for this
-        // (host, content_type), don't touch it — they may have refined it via
-        // the debugger and we'd clobber their work.
         let existing = crate::db::get_site_profile(pool, &p.host, &p.content_type).await?;
-        if existing.is_some() {
-            debug!("seed {} → {} already present, skipping", p.host, p.content_type);
-            continue;
+        match existing.as_ref().map(|e| e.source.as_str()) {
+            None => {
+                // No profile at all → fresh insert.
+            }
+            Some("anthropic") => {
+                info!(
+                    "overriding stale anthropic-learned profile with bundled seed: {} → {}",
+                    p.host, p.content_type
+                );
+            }
+            Some(other) => {
+                debug!(
+                    "seed {} → {} already present (source={}), skipping",
+                    p.host, p.content_type, other
+                );
+                continue;
+            }
         }
         crate::db::upsert_site_profile(
             pool,
@@ -130,10 +160,12 @@ pub async fn seed_missing_profiles(pool: &SqlitePool) -> Result<usize> {
             "seed",
         )
         .await?;
-        inserted += 1;
-        info!("seeded site profile: {} → {}", p.host, p.content_type);
+        written += 1;
+        if existing.is_none() {
+            info!("seeded site profile: {} → {}", p.host, p.content_type);
+        }
     }
-    Ok(inserted)
+    Ok(written)
 }
 
 #[cfg(test)]

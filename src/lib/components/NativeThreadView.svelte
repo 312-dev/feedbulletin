@@ -435,12 +435,6 @@
   tabindex={debug ? 0 : undefined}
 >
   {#each posts as p, i (i)}
-    {@const idx = postIndexOf(p, i)}
-    {#if lastReadPostIndex != null && lastReadPostIndex > 0 && i > 0 && idx > lastReadPostIndex && postIndexOf(posts[i - 1], i - 1) <= lastReadPostIndex}
-      <div class="vb-new-divider" data-testid="new-posts-divider">
-        <span>New posts ↓</span>
-      </div>
-    {/if}
     <article class="vb-post" data-field="post" id={`post-${p.post_number ?? i + 1}`}>
       <aside class="vb-author-panel">
         {#if p.avatar_url && !failedAvatars.has(p.avatar_url)}
@@ -767,29 +761,6 @@
   .vb-post-ext:focus-visible {
     outline: 1px solid var(--vb-link);
     outline-offset: 1px;
-  }
-  .vb-new-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 6px 0;
-    background: color-mix(in srgb, var(--vb-link) 8%, transparent);
-    border-top: 1px dashed var(--vb-link);
-    border-bottom: 1px dashed var(--vb-link);
-    font-family: Verdana, Tahoma, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--vb-link);
-  }
-  .vb-new-divider::before,
-  .vb-new-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: color-mix(in srgb, var(--vb-link) 40%, transparent);
   }
   .vb-post-replyto {
     font-size: 10px;

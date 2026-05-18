@@ -122,10 +122,42 @@ pub fn apply(html: &str, selectors: &SelectorSet, base_url: Option<&str>) -> Res
             out.push(post);
         }
     } else {
-        for (i, el) in doc.select(&post_sel).enumerate() {
+        // Some forum themes (notably BimmerPost / vB4 with the "first-post
+        // highlight" widget) place the same `<table id="postNNNN">` in TWO
+        // separate DOM containers — once in a "highlighted first post" box
+        // at the top, and again in the main post list below. `post_sel`
+        // matches both; without dedup we render the same post twice with
+        // the same post_number, which looks alarming. We dedupe by:
+        //   1. The post_number read out of the DOM (when present — vBulletin
+        //      themes embed it as a stable per-post identifier).
+        //   2. Author + first-N-chars-of-body fingerprint (fallback for
+        //      sources that don't expose a post number).
+        // Once a key has been seen, skip subsequent matches entirely.
+        use std::collections::HashSet;
+        let mut seen_numbers: HashSet<u32> = HashSet::new();
+        let mut seen_fingerprints: HashSet<String> = HashSet::new();
+        let mut idx: u32 = 0;
+        for el in doc.select(&post_sel) {
             let mut post = extract_one(el, selectors, base_url);
+
+            if let Some(n) = post.post_number {
+                if !seen_numbers.insert(n) {
+                    continue;
+                }
+            } else {
+                let fp = format!(
+                    "{}|{}",
+                    post.author,
+                    post.body_html.chars().take(120).collect::<String>(),
+                );
+                if !seen_fingerprints.insert(fp) {
+                    continue;
+                }
+            }
+
             if post.post_number.is_none() {
-                post.post_number = Some((i + 1) as u32);
+                idx += 1;
+                post.post_number = Some(idx);
             }
             out.push(post);
         }
@@ -807,6 +839,85 @@ mod tests {
             Some("2024-05-12T14:30:00Z"),
             "datetime attr should win over text"
         );
+    }
+
+    #[test]
+    fn linear_dedupes_post_repeated_in_first_post_highlight_widget() {
+        // vBulletin 4 themes (notably BimmerPost / Bimmer Network) embed the
+        // first post in BOTH a "highlighted first post" wrapper at the top of
+        // the thread AND in the main post list below — same `<table
+        // id="postNNN">` markup in two parent containers. Without dedup the
+        // linear extractor would emit the same post twice. With dedup, the
+        // first occurrence wins and the second is dropped.
+        let html = r##"<!DOCTYPE html><html><body>
+        <div id="firstpost_highlight">
+          <table id="post1234">
+            <tr><td class="thead"><div class="normal"><a href="#post1234">#1</a></div></td></tr>
+            <tr>
+              <td class="alt2"><a class="bigusername" href="/member.php?u=1">Alice</a></td>
+              <td class="alt1"><div id="post_message_1234">Hello world from the OP.</div></td>
+            </tr>
+          </table>
+        </div>
+        <div id="posts">
+          <table id="post1234">
+            <tr><td class="thead"><div class="normal"><a href="#post1234">#1</a></div></td></tr>
+            <tr>
+              <td class="alt2"><a class="bigusername" href="/member.php?u=1">Alice</a></td>
+              <td class="alt1"><div id="post_message_1234">Hello world from the OP.</div></td>
+            </tr>
+          </table>
+          <table id="post1235">
+            <tr><td class="thead"><div class="normal"><a href="#post1235">#2</a></div></td></tr>
+            <tr>
+              <td class="alt2"><a class="bigusername" href="/member.php?u=2">Bob</a></td>
+              <td class="alt1"><div id="post_message_1235">Reply.</div></td>
+            </tr>
+          </table>
+        </div>
+        </body></html>"##;
+
+        let s = SelectorSet {
+            traversal_mode: TraversalMode::Linear,
+            post_selector: "table[id^='post']".into(),
+            author_selector: "td.alt2 a.bigusername".into(),
+            body_selector: "div[id^='post_message_']".into(),
+            post_number_selector: Some("td.thead div.normal a[href*='#post']".into()),
+            ..Default::default()
+        };
+        let posts = apply(html, &s, None).unwrap();
+        assert_eq!(posts.len(), 2, "expected 2 unique posts after dedup, got {}", posts.len());
+        assert_eq!(posts[0].author, "Alice");
+        assert_eq!(posts[0].post_number, Some(1));
+        assert_eq!(posts[1].author, "Bob");
+        assert_eq!(posts[1].post_number, Some(2));
+    }
+
+    #[test]
+    fn linear_dedupes_by_fingerprint_when_post_number_missing() {
+        // When the theme doesn't expose a per-post number, dedup falls back
+        // to author + body-prefix fingerprint. Same source pattern as above:
+        // one post repeated across two parent containers.
+        let html = r##"<!DOCTYPE html><html><body>
+        <div class="highlight">
+          <article class="post"><span class="user">Alice</span><div class="body">Hello world.</div></article>
+        </div>
+        <div class="list">
+          <article class="post"><span class="user">Alice</span><div class="body">Hello world.</div></article>
+          <article class="post"><span class="user">Bob</span><div class="body">Different reply.</div></article>
+        </div>
+        </body></html>"##;
+        let s = SelectorSet {
+            traversal_mode: TraversalMode::Linear,
+            post_selector: "article.post".into(),
+            author_selector: "span.user".into(),
+            body_selector: "div.body".into(),
+            ..Default::default()
+        };
+        let posts = apply(html, &s, None).unwrap();
+        assert_eq!(posts.len(), 2);
+        assert_eq!(posts[0].author, "Alice");
+        assert_eq!(posts[1].author, "Bob");
     }
 
     #[test]
