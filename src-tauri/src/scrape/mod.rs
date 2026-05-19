@@ -468,49 +468,6 @@ pub async fn handle_sample(
         "dispatcher loaded profiles for host"
     );
 
-    // DEEPER DIAGNOSTIC: when list_site_profiles_for_host returns nothing for
-    // a host we expect to have a profile, run a side query against the same
-    // pool to see if the table is actually empty or just our WHERE-clause
-    // misses. If the side query returns rows but the targeted lookup does
-    // not, the bug is in the targeted query (collation, parameter binding,
-    // host-string mismatch). If both return 0, the pool's connection is
-    // looking at a different DB than the one we seeded.
-    if existing_profiles.is_empty() {
-        use sqlx::Row;
-        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM site_profiles")
-            .fetch_one(pool)
-            .await
-            .unwrap_or(-1);
-        let all_rows = sqlx::query(
-            "SELECT host, content_type, source, length(host) AS hlen, hex(host) AS hhex FROM site_profiles ORDER BY host LIMIT 50",
-        )
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
-        let dump: Vec<String> = all_rows
-            .iter()
-            .map(|r| {
-                format!(
-                    "{}|{}|{}|len={}|hex={}",
-                    r.get::<String, _>("host"),
-                    r.get::<String, _>("content_type"),
-                    r.get::<String, _>("source"),
-                    r.get::<i64, _>("hlen"),
-                    r.get::<String, _>("hhex"),
-                )
-            })
-            .collect();
-        let want_hex: String = host.bytes().map(|b| format!("{b:02X}")).collect();
-        tracing::warn!(
-            host,
-            want_hex,
-            want_len = host.len(),
-            site_profiles_total = total,
-            site_profiles_dump = ?dump,
-            "dispatcher saw empty profile list for host — dumping full site_profiles table for visibility check"
-        );
-    }
-
     // Try probes in order: first profile whose content_probe matches this DOM
     // is the one we apply. Skip profiles with empty probes (legacy / fallback).
     let matched = existing_profiles

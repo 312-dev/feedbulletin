@@ -56,11 +56,23 @@ const SEEDS: &[(&str, &str)] = &[
 ];
 
 #[derive(Debug)]
-struct SeedProfile {
-    host: String,
-    content_type: String,
-    content_probe: String,
-    selectors_json: String,
+pub struct SeedProfile {
+    pub host: String,
+    pub content_type: String,
+    pub content_probe: String,
+    pub selectors_json: String,
+}
+
+/// Iterate every bundled seed for a host. Returns one entry per (host,
+/// content_type) seed file. Order matches the order of `SEEDS`. Used by the
+/// re-learn command to prefer the bundled selectors over running the
+/// Anthropic learner from scratch.
+pub fn find_seeds_for_host(host: &str) -> Vec<SeedProfile> {
+    SEEDS
+        .iter()
+        .filter_map(|(_name, body)| parse_seed(body))
+        .filter(|p| p.host == host)
+        .collect()
 }
 
 /// Parse a single seed MD file. The format is fixed — a YAML frontmatter
@@ -164,31 +176,6 @@ pub async fn seed_missing_profiles(pool: &SqlitePool) -> Result<usize> {
             "seed",
         )
         .await?;
-
-        // DIAGNOSTIC: read back what we just wrote and log it. Catches the
-        // case where the upsert returns Ok but the row isn't queryable
-        // afterward (transaction visibility, host normalization, etc.).
-        match crate::db::get_site_profile(pool, &p.host, &p.content_type).await {
-            Ok(Some(r)) => {
-                info!(
-                    host = %p.host,
-                    content_type = %p.content_type,
-                    source = %r.source,
-                    "seed wrote+verified"
-                );
-            }
-            Ok(None) => {
-                warn!(
-                    host = %p.host,
-                    content_type = %p.content_type,
-                    "seed upsert returned Ok but readback found nothing!"
-                );
-            }
-            Err(e) => {
-                warn!(host = %p.host, err = %e, "seed readback errored");
-            }
-        }
-
         written += 1;
         if existing.is_none() {
             info!("seeded site profile: {} → {}", p.host, p.content_type);

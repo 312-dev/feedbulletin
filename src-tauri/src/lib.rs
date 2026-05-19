@@ -288,31 +288,6 @@ pub fn run() {
                     Err(e) => warn!("seeding bundled site profiles failed: {e:#}"),
                 }
 
-                // DIAGNOSTIC: dump every site_profile right after the seed
-                // pass so we can see the DB state at startup time and compare
-                // against later dispatcher lookups.
-                if let Ok(rows) = sqlx::query(
-                    "SELECT host, content_type, source, datetime(created_at,'unixepoch') AS ts FROM site_profiles ORDER BY host, content_type",
-                )
-                .fetch_all(&pool)
-                .await
-                {
-                    use sqlx::Row;
-                    let summary: Vec<String> = rows
-                        .iter()
-                        .map(|r| {
-                            format!(
-                                "{}|{}|{}|{}",
-                                r.get::<String, _>("host"),
-                                r.get::<String, _>("content_type"),
-                                r.get::<String, _>("source"),
-                                r.get::<String, _>("ts")
-                            )
-                        })
-                        .collect();
-                    info!(rows = ?summary, "site_profiles after seed pass");
-                }
-
                 // WHY: best-effort warmup of the cookie cache so the first poll has any
                 // saved cookies. Cookie persistence failures are non-fatal; we log + continue.
                 if let Ok(persisted) = cookies::load_from_db(&pool).await {

@@ -1148,7 +1148,6 @@ pub async fn bump_profile_fail(
     content_type: &str,
     err: &str,
 ) -> Result<()> {
-    tracing::warn!(host, content_type, err, "bump_profile_fail called");
     sqlx::query(
         "UPDATE site_profiles SET fail_count = fail_count + 1, \
          last_validated_at = ?, last_error = ? \
@@ -1165,14 +1164,7 @@ pub async fn bump_profile_fail(
 
 /// Delete every profile for a host (all content types) plus its revision chain.
 pub async fn delete_site_profile(pool: &SqlitePool, host: &str) -> Result<()> {
-    // DIAGNOSTIC: loud log + backtrace so we never lose track of who deleted
-    // a profile (the autopia.org ghost-write bug was traced to a delete
-    // call that we couldn't otherwise see in the log).
-    tracing::warn!(
-        host,
-        backtrace = ?std::backtrace::Backtrace::force_capture(),
-        "delete_site_profile(host) called — deleting ALL content-type profiles for this host"
-    );
+    tracing::info!(host, "delete_site_profile: dropping all profiles for host");
     sqlx::query("DELETE FROM site_profiles WHERE host = ?")
         .bind(host)
         .execute(pool)
@@ -1190,12 +1182,7 @@ pub async fn delete_site_profile_one(
     host: &str,
     content_type: &str,
 ) -> Result<()> {
-    tracing::warn!(
-        host,
-        content_type,
-        backtrace = ?std::backtrace::Backtrace::force_capture(),
-        "delete_site_profile_one(host, content_type) called"
-    );
+    tracing::info!(host, content_type, "delete_site_profile_one: dropping profile");
     sqlx::query("DELETE FROM site_profiles WHERE host = ? AND content_type = ?")
         .bind(host)
         .bind(content_type)

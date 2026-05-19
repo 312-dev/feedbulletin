@@ -1263,14 +1263,52 @@ pub async fn load_more_posts(
     Ok(())
 }
 
+/// The "Re-learn" / "Clear layout cache" UI button hits this. Behavior:
+///
+/// 1. If we ship a bundled seed for this host, restore the seed selectors
+///    (delete the existing profile, write the seed). This is the right
+///    answer for the seeded set — the seeds are hand-verified and reliably
+///    better than what a one-shot Anthropic call produces.
+/// 2. Otherwise, delete the profile. The next page load will trigger a
+///    fresh Anthropic learn (current behavior pre-seed).
+///
+/// WHY: the old behavior was unconditional delete, which on seeded hosts
+/// destroyed the bundled selectors and forced a fresh anthropic call that
+/// produced the same buggy output every time (e.g. autopia.org learner
+/// missed the `img` suffix on the avatar selector). The user's actual
+/// intent when clicking "Re-learn" is "give me the best known selectors
+/// and re-scrape" — not "burn my best profile and pay for a new API call."
 #[tauri::command]
 pub async fn relearn_site_profile(
     host: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
+    let seeds = scrape::seed::find_seeds_for_host(&host);
     db::delete_site_profile(&state.pool, &host)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    if !seeds.is_empty() {
+        for s in &seeds {
+            db::upsert_site_profile(
+                &state.pool,
+                &s.host,
+                &s.content_type,
+                &s.content_probe,
+                &s.selectors_json,
+                "seed",
+            )
+            .await
+            .map_err(|e| e.to_string())?;
+        }
+        tracing::info!(
+            host,
+            seed_count = seeds.len(),
+            "relearn: restored bundled seed(s) for host instead of running learner"
+        );
+    } else {
+        tracing::info!(host, "relearn: no bundled seed for host — fresh anthropic learn will run on next visit");
+    }
+    Ok(())
 }
 
 // ---------- debugger refinement commands ----------
