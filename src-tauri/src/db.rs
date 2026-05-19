@@ -1435,6 +1435,40 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn upsert_then_list_returns_what_was_written() {
+        // Regression for the autopia.org "ghost write" bug: the seed-on-
+        // startup path called upsert_site_profile with no error, but the
+        // dispatcher's list_site_profiles_for_host returned [] for the same
+        // host 40s later. This test exercises the exact sequence in-process
+        // so we can isolate whether the bug is in the DB layer.
+        let pool = open_pool("sqlite::memory:").await.unwrap();
+
+        upsert_site_profile(
+            &pool,
+            "www.autopia.org",
+            "xenforo_text_thread",
+            "article.message.message--post.js-post",
+            r#"{"content_type":"xenforo_text_thread","content_probe":"article.message.message--post.js-post","post_selector":"article.message.message--post.js-post"}"#,
+            "seed",
+        )
+        .await
+        .unwrap();
+
+        let profiles = list_site_profiles_for_host(&pool, "www.autopia.org")
+            .await
+            .unwrap();
+        assert_eq!(profiles.len(), 1, "expected the seed write to be visible");
+        assert_eq!(profiles[0].source, "seed");
+        assert_eq!(profiles[0].content_type, "xenforo_text_thread");
+
+        let one = get_site_profile(&pool, "www.autopia.org", "xenforo_text_thread")
+            .await
+            .unwrap();
+        assert!(one.is_some(), "get_site_profile should also find the row");
+        assert_eq!(one.unwrap().content_probe, "article.message.message--post.js-post");
+    }
+
+    #[tokio::test]
     async fn schema_bootstraps_in_memory() {
         let pool = open_pool("sqlite::memory:").await.unwrap();
         let row =

@@ -164,6 +164,31 @@ pub async fn seed_missing_profiles(pool: &SqlitePool) -> Result<usize> {
             "seed",
         )
         .await?;
+
+        // DIAGNOSTIC: read back what we just wrote and log it. Catches the
+        // case where the upsert returns Ok but the row isn't queryable
+        // afterward (transaction visibility, host normalization, etc.).
+        match crate::db::get_site_profile(pool, &p.host, &p.content_type).await {
+            Ok(Some(r)) => {
+                info!(
+                    host = %p.host,
+                    content_type = %p.content_type,
+                    source = %r.source,
+                    "seed wrote+verified"
+                );
+            }
+            Ok(None) => {
+                warn!(
+                    host = %p.host,
+                    content_type = %p.content_type,
+                    "seed upsert returned Ok but readback found nothing!"
+                );
+            }
+            Err(e) => {
+                warn!(host = %p.host, err = %e, "seed readback errored");
+            }
+        }
+
         written += 1;
         if existing.is_none() {
             info!("seeded site profile: {} → {}", p.host, p.content_type);

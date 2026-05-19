@@ -458,6 +458,16 @@ pub async fn handle_sample(
 ) -> Result<Option<PostsReadyPayload>> {
     let existing_profiles = crate::db::list_site_profiles_for_host(pool, host).await?;
 
+    // DIAGNOSTIC: log what we found per host on every dispatch so we can
+    // correlate empty-profile-list dispatches against the seed log to chase
+    // visibility/normalization bugs.
+    tracing::debug!(
+        host,
+        profile_count = existing_profiles.len(),
+        types = ?existing_profiles.iter().map(|p| (p.content_type.clone(), p.source.clone(), p.content_probe.chars().take(50).collect::<String>())).collect::<Vec<_>>(),
+        "dispatcher loaded profiles for host"
+    );
+
     // Try probes in order: first profile whose content_probe matches this DOM
     // is the one we apply. Skip profiles with empty probes (legacy / fallback).
     let matched = existing_profiles
