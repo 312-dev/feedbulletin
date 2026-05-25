@@ -25,7 +25,7 @@ futures = "0.3"
 
 reqwest = { version = "0.12", default-features = false, features = ["default-tls", "json", "gzip", "brotli"] }
 
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros", "migrate", "chrono"] }
+sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "sqlite", "macros", "migrate", "chrono"] }
 
 quick-xml = { version = "0.36", features = ["serialize"] }
 chrono = { version = "0.4", features = ["serde"] }
